@@ -2,6 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from functools import wraps
 import json, os
 from flask import send_from_directory
+import re
+from flask import Response
+import csv
+import io
 
 app = Flask(__name__)
 app.secret_key = 'supersecurekey'
@@ -32,6 +36,35 @@ def login_required(role=None):
             return f(*args, **kwargs)
         return decorated
     return wrapper
+
+def load_alerts():
+    try:
+        with open("alerts.json") as f:
+            data = json.load(f)
+            return data.get("alerts", []), data.get("threat_statistics", {})
+    except Exception as e:
+        print(f"Error loading alerts.json: {e}")
+        return [], {}
+
+def search_logs(tenant, query=None):
+    results = []
+    tenant_dir = os.path.join(BASE_LOG_DIR, tenant)
+    if not os.path.exists(tenant_dir):
+        return results
+
+    for fname in os.listdir(tenant_dir):
+        if fname.endswith(".log"):
+            path = os.path.join(tenant_dir, fname)
+            with open(path, 'r', errors='ignore') as f:
+                for i, line in enumerate(f, 1):
+                    if not query or re.search(query, line, re.IGNORECASE):
+                        results.append({
+                            'file': fname,
+                            'line_num': i,
+                            'content': line.strip(),
+                            'tenant': tenant
+                        })
+    return results
 
 # ---------- Routes ----------
 
@@ -66,13 +99,24 @@ def select_tenant():
             return redirect(url_for("dashboard"))
     return render_template("select_tenant.html", tenants=tenants)
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 @login_required("analyst")
 def dashboard():
-    selected = session.get("selected_tenant")
-    if not selected:
-        return redirect(url_for("select_tenant"))
-    return render_template("index.html", tenant=selected)
+    user = session["user"]
+    role = session["role"]
+    query = request.form.get("query", "")
+
+    tenants = get_available_tenants(user)
+    all_data = {}
+
+    alerts, stats = load_alerts()  # Global alert summary for all tenants
+
+    for tenant in tenants:
+        logs = search_logs(tenant, query)
+        all_data[tenant] = logs
+
+    return render_template("index.html", all_logs=all_data, alerts=alerts, stats=stats, tenants=tenants, query=query, user=user)
+
 
 @app.route("/admin", methods=["GET", "POST"])
 @login_required("admin")
@@ -163,6 +207,31 @@ def request_access():
         return redirect(url_for("request_access"))
 
     return render_template("request_access.html")
+
+@app.route('/export_logs', methods=['POST'])
+@login_required()
+def export_logs():
+    user = session['user']
+    tenants = get_available_tenants(user)
+    all_logs = []
+
+    for tenant in tenants:
+        logs = search_logs(tenant)
+        for log in logs:
+            all_logs.append([tenant, log['file'], log['line_num'], log['content']])
+
+    si = io.StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['Tenant', 'Log File', 'Line Number', 'Content'])  # CSV header
+    cw.writerows(all_logs)
+
+    output = si.getvalue()
+    return Response(
+        output,
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment;filename=logs_export.csv'}
+    )
+
 
 
 # ---------- Run ----------
