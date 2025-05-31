@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Tenant</title>
+</head>
+<body>
+  <h2>Select Tenant</h2>
+  <form method="POST">
+    <select name="tenant" required>
+      {% for tenant in tenants %}
+        <option value="{{ tenant }}">{{ tenant }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Continue</button>
+  </form>
+  <p><a href="{{ url_for('logout') }}">Logout</a></p>
+</body>
+</html>

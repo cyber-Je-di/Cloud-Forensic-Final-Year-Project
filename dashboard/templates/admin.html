@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    h2 { margin-top: 30px; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 10px; }
+    table { width: 100%; margin-bottom: 20px; }
+    form.inline { display: inline; }
+    .flash { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel</h1>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class="flash">
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <h2>Access Requests</h2>
+  {% if requests %}
+    <table>
+      <tr>
+        <th>Username</th>
+        <th>NRC</th>
+        <th>License ID</th>
+        <th>Reason</th>
+        <th>Proof</th>
+        <th>Action</th>
+      </tr>
+      {% for req in requests %}
+      <tr>
+        <form method="POST">
+          <td>{{ req.username }}<input type="hidden" name="username" value="{{ req.username }}"></td>
+          <td>{{ req.nrc }}</td>
+          <td>{{ req.license_id }}</td>
+          <td>{{ req.reason }}</td>
+          <td><a href="/uploads/{{ req.proof_file }}" target="_blank">View Proof</a></td>
+          <td>
+            <select name="tenants" multiple required>
+              {% for tenant in tenants %}
+                <option value="{{ tenant }}">{{ tenant }}</option>
+              {% endfor %}
+            </select><br><br>
+            <button name="action" value="approve">Approve</button>
+            <button name="action" value="delete">Reject</button>
+          </td>
+        </form>
+      </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No pending access requests.</p>
+  {% endif %}
+
+  <h2>Existing Users</h2>
+  <table>
+    <tr><th>Username</th><th>Role</th><th>Tenants</th><th>Action</th></tr>
+    {% for username, user in users.items() %}
+    <tr>
+      <td>{{ username }}</td>
+      <td>{{ user.role }}</td>
+      <td>{{ user.authorized_tenants | join(", ") }}</td>
+      <td>
+        {% if user.role != 'admin' %}
+        <form method="POST" class="inline">
+          <input type="hidden" name="delete_user" value="{{ username }}">
+          <button name="action" value="remove_user" onclick="return confirm('Remove {{ username }}?')">Remove</button>
+        </form>
+        {% else %}
+        (Admin)
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

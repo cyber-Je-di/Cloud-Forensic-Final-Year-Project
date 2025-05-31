@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Request Access</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    form { max-width: 500px; margin: auto; }
+    input, textarea { width: 100%; padding: 10px; margin: 10px 0; }
+    button { padding: 10px 20px; background: #4CAF50; color: white; border: none; }
+  </style>
+</head>
+<body>
+  <h2>Request Analyst Access</h2>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul>
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <form method="POST" enctype="multipart/form-data">
+    <input type="text" name="username" placeholder="Preferred Username" required>
+    <input type="text" name="nrc" placeholder="NRC Number" required>
+    <input type="text" name="license_id" placeholder="License ID" required>
+    <textarea name="reason" placeholder="Reason for Access" required></textarea>
+    <input type="file" name="proof" required>
+    <button type="submit">Submit Request</button>
+  </form>
+</body>
+</html>

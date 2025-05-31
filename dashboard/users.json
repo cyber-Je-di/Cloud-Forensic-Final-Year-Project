@@ -1,0 +1,25 @@
+{
+    "admin": {
+        "password": "adminpass",
+        "role": "admin",
+        "authorized_tenants": [
+            "tenant-A",
+            "tenant-B",
+            "tenant-C"
+        ]
+    },
+    "analyst1": {
+        "password": "password123",
+        "role": "analyst",
+        "authorized_tenants": [
+            "tenant-B"
+        ]
+    },
+    "analyst2": {
+        "password": "pass456",
+        "role": "analyst",
+        "authorized_tenants": [
+            "tenant-C"
+        ]
+    }
+}
