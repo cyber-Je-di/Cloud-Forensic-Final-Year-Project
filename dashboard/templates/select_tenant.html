@@ -3,17 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <title>Select Tenant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/select_tenant.css') }}">
+  <script>
+    function enableButton() {
+      const select = document.querySelector("select[name='tenant']");
+      const button = document.querySelector("#continueBtn");
+      if (select.value) {
+        button.classList.add("enabled");
+        button.disabled = false;
+      }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelector("select[name='tenant']").addEventListener("change", enableButton);
+    });
+  </script>
 </head>
 <body>
-  <h2>Select Tenant</h2>
-  <form method="POST">
-    <select name="tenant" required>
-      {% for tenant in tenants %}
-        <option value="{{ tenant }}">{{ tenant }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Continue</button>
-  </form>
-  <p><a href="{{ url_for('logout') }}">Logout</a></p>
+  <div class="tenant-container">
+    <div class="tenant-card">
+      <div class="tenant-header">
+        <div class="logo">
+          <i class="fas fa-building"></i>
+        </div>
+        <h1>Select Tenant</h1>
+        <p class="subtitle">Choose a tenant to continue</p>
+      </div>
+
+      <form method="POST" class="tenant-form">
+        <div class="form-group">
+          <label for="tenant"><i class="fas fa-server"></i> Available Tenants</label>
+          <div class="select-wrapper">
+            <select name="tenant" required>
+              <option value="" disabled selected>-- Select a Tenant --</option>
+              {% for tenant in tenants %}
+              <option value="{{ tenant }}">{{ tenant }}</option>
+              {% endfor %}
+            </select>
+            <div class="select-arrow">&#9662;</div>
+          </div>
+        </div>
+
+        <button type="submit" class="continue-button" id="continueBtn" disabled>
+          <i class="fas fa-arrow-right"></i> Continue
+        </button>
+      </form>
+
+      <div class="tenant-footer">
+        <div class="tenant-info">
+          <i class="fas fa-user"></i> Logged in as {{ session['user'] }}
+        </div>
+        <a href="{{ url_for('logout') }}" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional: Font Awesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>

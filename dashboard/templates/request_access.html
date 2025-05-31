@@ -3,31 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <title>Request Access</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    form { max-width: 500px; margin: auto; }
-    input, textarea { width: 100%; padding: 10px; margin: 10px 0; }
-    button { padding: 10px 20px; background: #4CAF50; color: white; border: none; }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/request_access.css') }}">
+  <script>
+    function showFilename(input) {
+      const label = document.getElementById('file-label');
+      if (input.files.length > 0) {
+        label.innerText = input.files[0].name;
+      } else {
+        label.innerText = "Click to upload proof document";
+      }
+    }
+  </script>
 </head>
 <body>
-  <h2>Request Analyst Access</h2>
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul>
-        {% for msg in messages %}
-          <li>{{ msg }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-  <form method="POST" enctype="multipart/form-data">
-    <input type="text" name="username" placeholder="Preferred Username" required>
-    <input type="text" name="nrc" placeholder="NRC Number" required>
-    <input type="text" name="license_id" placeholder="License ID" required>
-    <textarea name="reason" placeholder="Reason for Access" required></textarea>
-    <input type="file" name="proof" required>
-    <button type="submit">Submit Request</button>
-  </form>
+  <div class="request-container">
+    <div class="request-card">
+      <div class="request-header">
+        <div class="logo">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <h1>Request Analyst Access</h1>
+        <p class="subtitle">Fill in your details to request access.</p>
+      </div>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="alert-container">
+            {% for msg in messages %}
+              <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> {{ msg }}
+                <button class="close-alert" onclick="this.parentElement.style.display='none'">&times;</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" enctype="multipart/form-data">
+        <div class="form-section">
+          <h3><i class="fas fa-id-card"></i> Personal Info</h3>
+
+          <div class="form-group">
+            <label for="username"><i class="fas fa-user"></i> Username <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="text" id="username" name="username" placeholder="Preferred username" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="nrc"><i class="fas fa-address-card"></i> NRC Number <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="text" id="nrc" name="nrc" placeholder="Your NRC number" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="license_id"><i class="fas fa-id-badge"></i> License ID <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="text" id="license_id" name="license_id" placeholder="Medical or analyst license ID" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3><i class="fas fa-comment-dots"></i> Reason for Access</h3>
+
+          <div class="form-group">
+            <label for="reason"><i class="fas fa-pen"></i> Justification <span class="required">*</span></label>
+            <div class="textarea-wrapper">
+              <textarea id="reason" name="reason" placeholder="Why do you need access?" required></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3><i class="fas fa-file-upload"></i> Proof Document</h3>
+          <div class="form-group file-upload-wrapper">
+            <label for="proof" class="file-upload-area" onclick="document.getElementById('proof').click()">
+              <div class="file-upload-icon"><i class="fas fa-upload"></i></div>
+              <div class="file-upload-text" id="file-label">Click to upload proof document</div>
+              <div class="file-upload-hint">Accepted formats: PDF, PNG, JPG</div>
+            </label>
+            <input type="file" id="proof" name="proof" accept=".pdf,.png,.jpg,.jpeg" required onchange="showFilename(this)">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="submit-button">
+            <i class="fas fa-paper-plane"></i> Submit Request
+          </button>
+        </div>
+
+        <div class="form-footer">
+          Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Optional: Font Awesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>

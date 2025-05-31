@@ -1,0 +1,388 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  padding: 20px;
+}
+
+.tenant-container {
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  z-index: 1;
+}
+
+.tenant-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.6s ease-out;
+  margin-bottom: 20px;
+}
+
+.tenant-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.logo i {
+  font-size: 36px;
+  color: white;
+}
+
+.tenant-header h1 {
+  color: #2d3748;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #718096;
+  font-size: 16px;
+}
+
+/* Form Styles */
+.tenant-form {
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 16px;
+}
+
+.form-group label i {
+  margin-right: 10px;
+  color: #667eea;
+  font-size: 18px;
+}
+
+.select-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 2px solid #e2e8f0;
+  background: white;
+}
+
+.select-wrapper:hover {
+  border-color: #cbd5e0;
+}
+
+.select-wrapper.focused {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+select {
+  width: 100%;
+  padding: 16px 50px 16px 16px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #2d3748;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+select:focus {
+  outline: none;
+}
+
+select option {
+  padding: 12px;
+  background: white;
+  color: #2d3748;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #718096;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.select-wrapper.focused .select-arrow {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.continue-button {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #a0aec0, #718096);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: not-allowed;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  opacity: 0.6;
+}
+
+.continue-button.enabled {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  cursor: pointer;
+  opacity: 1;
+}
+
+.continue-button.enabled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.continue-button:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Footer Styles */
+.tenant-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.tenant-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #718096;
+  font-size: 14px;
+}
+
+.tenant-info i {
+  color: #4299e1;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f56565, #e53e3e);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(245, 101, 101, 0.3);
+}
+
+/* Tenant Preview */
+.tenant-preview {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+}
+
+.tenant-preview.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.preview-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.preview-header i {
+  color: #667eea;
+  font-size: 24px;
+}
+
+.preview-header h3 {
+  color: #2d3748;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.preview-item i {
+  color: #48bb78;
+  font-size: 16px;
+  width: 20px;
+}
+
+/* Decorative Elements */
+.tenant-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.decoration-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(5px);
+}
+
+.circle-1 {
+  width: 250px;
+  height: 250px;
+  top: -125px;
+  left: -125px;
+  animation: float 8s infinite ease-in-out;
+}
+
+.circle-2 {
+  width: 180px;
+  height: 180px;
+  bottom: -90px;
+  right: -90px;
+  animation: float 12s infinite ease-in-out reverse;
+}
+
+.circle-3 {
+  width: 120px;
+  height: 120px;
+  top: 30%;
+  right: -60px;
+  animation: float 10s infinite ease-in-out 2s;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .tenant-card {
+    padding: 30px 20px;
+  }
+  
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .logo i {
+    font-size: 28px;
+  }
+  
+  .tenant-header h1 {
+    font-size: 24px;
+  }
+  
+  .tenant-footer {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  select, .continue-button {
+    padding: 14px;
+  }
+  
+  .preview-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .tenant-container {
+    padding: 10px;
+  }
+  
+  .tenant-card {
+    padding: 25px 15px;
+  }
+}

@@ -1,27 +1,64 @@
-<!DOCTYPE html>
+..<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-  <h2>Login</h2>
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="logo">
+          <i class="fas fa-shield-alt"></i> <!-- Optional icon, ensure Font Awesome is loaded if needed -->
+        </div>
+        <h1>Secure Login</h1>
+        <p class="subtitle">Access your cloud forensic dashboard</p>
+      </div>
+
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <div class="alert-container">
         {% for message in messages %}
-          <li style="color:red;">{{ message }}</li>
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-circle"></i> {{ message }}
+          <button class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
         {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-  <form method="POST">
-    <label>Username:</label><br>
-    <input type="text" name="username" required><br>
-    <label>Password:</label><br>
-    <input type="password" name="password" required><br>
-    <button type="submit">Login</button>
-    <p>Not registered? <a href="{{ url_for('request_access') }}">Request Access</a></p>
-  </form>
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      <form method="POST" class="login-form">
+        <div class="form-group">
+          <label for="username"><i class="fas fa-user"></i> Username</label>
+          <div class="input-wrapper">
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password"><i class="fas fa-lock"></i> Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+          </div>
+        </div>
+
+        <button type="submit" class="login-button">
+          <i class="fas fa-sign-in-alt"></i> Log In
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p>Not registered?</p>
+        <a href="{{ url_for('request_access') }}" class="request-access-btn">
+          <i class="fas fa-user-plus"></i> Request Access
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional: Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>

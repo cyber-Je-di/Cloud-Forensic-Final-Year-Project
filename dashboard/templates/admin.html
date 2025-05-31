@@ -1,86 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Panel</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 30px; }
-    h2 { margin-top: 30px; }
-    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 10px; }
-    table { width: 100%; margin-bottom: 20px; }
-    form.inline { display: inline; }
-    .flash { color: green; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body>
-  <h1>Admin Panel</h1>
+    <div class="container">
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+            <span class="admin-badge">Admin</span>
+        </div>
 
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul class="flash">
-        {% for msg in messages %}
-          <li>{{ msg }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-
-  <h2>Access Requests</h2>
-  {% if requests %}
-    <table>
-      <tr>
-        <th>Username</th>
-        <th>NRC</th>
-        <th>License ID</th>
-        <th>Reason</th>
-        <th>Proof</th>
-        <th>Action</th>
-      </tr>
-      {% for req in requests %}
-      <tr>
-        <form method="POST">
-          <td>{{ req.username }}<input type="hidden" name="username" value="{{ req.username }}"></td>
-          <td>{{ req.nrc }}</td>
-          <td>{{ req.license_id }}</td>
-          <td>{{ req.reason }}</td>
-          <td><a href="/uploads/{{ req.proof_file }}" target="_blank">View Proof</a></td>
-          <td>
-            <select name="tenants" multiple required>
-              {% for tenant in tenants %}
-                <option value="{{ tenant }}">{{ tenant }}</option>
-              {% endfor %}
-            </select><br><br>
-            <button name="action" value="approve">Approve</button>
-            <button name="action" value="delete">Reject</button>
-          </td>
-        </form>
-      </tr>
-      {% endfor %}
-    </table>
-  {% else %}
-    <p>No pending access requests.</p>
-  {% endif %}
-
-  <h2>Existing Users</h2>
-  <table>
-    <tr><th>Username</th><th>Role</th><th>Tenants</th><th>Action</th></tr>
-    {% for username, user in users.items() %}
-    <tr>
-      <td>{{ username }}</td>
-      <td>{{ user.role }}</td>
-      <td>{{ user.authorized_tenants | join(", ") }}</td>
-      <td>
-        {% if user.role != 'admin' %}
-        <form method="POST" class="inline">
-          <input type="hidden" name="delete_user" value="{{ username }}">
-          <button name="action" value="remove_user" onclick="return confirm('Remove {{ username }}?')">Remove</button>
-        </form>
-        {% else %}
-        (Admin)
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-message">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
         {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
+        {% endwith %}
+
+        <!-- Pending Access Requests -->
+        <div class="card">
+            <h2>Pending Access Requests</h2>
+            {% if requests %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Reason</th>
+                                <th>Assign Tenants</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in requests %}
+                            <tr>
+                                <td>{{ request.username }}</td>
+                                <td>{{ request.reason }}</td>
+                                <td>
+                                    <form method="POST" class="form-inline">
+                                        <input type="hidden" name="request_user" value="{{ request.username }}">
+                                        <select name="assign_tenants" class="select" multiple required>
+                                            {% for tenant in tenants %}
+                                                <option value="{{ tenant }}">{{ tenant }}</option>
+                                            {% endfor %}
+                                        </select>
+                                </td>
+                                <td class="button-group">
+                                        <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                                        <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="empty-state">No pending access requests.</p>
+            {% endif %}
+        </div>
+
+        <!-- Registered Users -->
+        <div class="card">
+            <h2>Registered Users</h2>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Tenants</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for username, user in users.items() %}
+                        <tr>
+                            <td>{{ username }}</td>
+                            <td>
+                                {% if user.role == 'admin' %}
+                                    <span class="badge badge-warning">Admin</span>
+                                {% else %}
+                                    <span class="badge badge-success">Analyst</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.role == 'admin' %}
+                                    <em>All tenants</em>
+                                {% else %}
+                                    {{ user.authorized_tenants | join(', ') }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.role != 'admin' %}
+                                <form method="POST" class="inline-form">
+                                    <input type="hidden" name="delete_user" value="{{ username }}">
+                                    <button type="submit" name="action" value="remove_user" class="btn btn-danger btn-sm">Remove</button>
+                                </form>
+                                {% else %}
+                                    <span class="protected-user">Protected</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
