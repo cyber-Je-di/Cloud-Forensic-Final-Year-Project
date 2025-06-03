@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Tenant Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
   <div class="dashboard-container">
 
@@ -21,14 +24,15 @@
     </form>
 
     <section class="log-section">
-      <h2>Recent Log Events</h2>
+      <h2>Recent Log Events by Tenant</h2>
+      {% for tenant, logs in all_logs.items() %}
+      <h3>{{ tenant }}</h3>
       {% if logs %}
       <table class="alerts-table">
         <thead>
           <tr>
             <th>File</th>
             <th>Line #</th>
-            <th>Tenant</th>
             <th>Message</th>
           </tr>
         </thead>
@@ -37,57 +41,17 @@
           <tr>
             <td>{{ log.file }}</td>
             <td>{{ log.line_num }}</td>
-            <td>{{ log.tenant }}</td>
             <td>{{ log.content }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
       {% else %}
-        <div class="empty-state">
-          <p>No logs found for your query.</p>
-        </div>
+      <div class="empty-state">
+        <p>No logs found for {{ tenant }}.</p>
+      </div>
       {% endif %}
-    </section>
-
-    <section class="alerts-section">
-      <h2>🚨 Alert Summary</h2>
-      {% if alerts %}
-      <table class="alerts-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Tenant</th>
-            <th>File</th>
-            <th>Line</th>
-            <th>Threat</th>
-            <th>Pattern</th>
-            <th>Message</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for alert in alerts %}
-          <tr>
-            <td>{{ alert.timestamp }}</td>
-            <td>{{ alert.tenant }}</td>
-            <td>{{ alert.file }}</td>
-            <td>{{ alert.line_number }}</td>
-            <td>
-              <span class="tag threat-{{ alert.threat_type|lower|replace(' ', '-') }}">
-                {{ alert.threat_type }}
-              </span>
-            </td>
-            <td>{{ alert.pattern_matched }}</td>
-            <td>{{ alert.content }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-        <div class="empty-state">
-          <p>No alerts detected for this tenant.</p>
-        </div>
-      {% endif %}
+      {% endfor %}
     </section>
 
     <div class="footer-info">
@@ -98,5 +62,17 @@
     </div>
 
   </div>
+
+  <section>
+    <h2>📈 Alert Statistics</h2>
+    <canvas id="threatChart" width="600" height="300"></canvas>
+  </section>
+
+  <section>
+    <h2>📊 Logs Per Tenant</h2>
+    <canvas id="logsPerTenantChart" width="600" height="300"></canvas>
+  </section>
+
 </body>
+<script src="../static/js/script.js"></script>
 </html>
