@@ -2,64 +2,189 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Select Tenant</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/select_tenant.css') }}">
-  <script>
-    function enableButton() {
-      const select = document.querySelector("select[name='tenant']");
-      const button = document.querySelector("#continueBtn");
-      if (select.value) {
-        button.classList.add("enabled");
-        button.disabled = false;
-      }
-    }
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelector("select[name='tenant']").addEventListener("change", enableButton);
-    });
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Tenant | Forensic Dashboard</title>
+  <link rel="stylesheet" href="../static/css/select_tenant.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="tenant-container">
-    <div class="tenant-card">
-      <div class="tenant-header">
-        <div class="logo">
-          <i class="fas fa-building"></i>
+  <!-- Background Elements -->
+  <div class="background">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+  </div>
+  
+  <div class="container">
+    <!-- Main Selection Card -->
+    <div class="selection-card">
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">
+          <div class="logo">
+            <i class="fas fa-building"></i>
+          </div>
+          <h1>Select Tenant</h1>
         </div>
-        <h1>Select Tenant</h1>
-        <p class="subtitle">Choose a tenant to continue</p>
+        <p class="subtitle">Choose your workspace to access the forensic dashboard</p>
       </div>
-
-      <form method="POST" class="tenant-form">
-        <div class="form-group">
-          <label for="tenant"><i class="fas fa-server"></i> Available Tenants</label>
-          <div class="select-wrapper">
-            <select name="tenant" required>
-              <option value="" disabled selected>-- Select a Tenant --</option>
-              {% for tenant in tenants %}
-              <option value="{{ tenant }}">{{ tenant }}</option>
-              {% endfor %}
-            </select>
-            <div class="select-arrow">&#9662;</div>
+      
+      <!-- User Info -->
+      <div class="user-info">
+        <div class="user-avatar">
+          <img src="https://ui-avatars.com/api/?name={{ session['user'] }}&background=4f46e5&color=fff" alt="User Avatar">
+        </div>
+        <div class="user-details">
+          <h3>Welcome back!</h3>
+          <p><i class="fas fa-user"></i> {{ session['user'] }}</p>
+        </div>
+        <div class="user-actions">
+          <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Tenant Selection Form -->
+      <form method="POST" class="selection-form" id="tenantForm">
+        <div class="form-section">
+          <h2><i class="fas fa-server"></i> Available Workspaces</h2>
+          <p class="section-description">Select a tenant workspace to continue to your dashboard</p>
+          
+          <!-- Tenant Grid -->
+          <div class="tenant-grid" id="tenantGrid">
+            {% for tenant in tenants %}
+            <div class="tenant-card" data-tenant="{{ tenant }}">
+              <div class="tenant-icon">
+                <i class="fas fa-building"></i>
+              </div>
+              <div class="tenant-info">
+                <h3>{{ tenant }}</h3>
+                <p class="tenant-description">Forensic workspace for {{ tenant }}</p>
+                <div class="tenant-stats">
+                  <span class="stat">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Active logs</span>
+                  </span>
+                  <span class="stat">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure access</span>
+                  </span>
+                </div>
+              </div>
+              <div class="tenant-status">
+                <span class="status-indicator active"></span>
+                <span class="status-text">Active</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <!-- Hidden Select for Form Submission -->
+          <select name="tenant" id="tenantSelect" style="display: none;" required>
+            <option value="" disabled selected>-- Select a Tenant --</option>
+            {% for tenant in tenants %}
+            <option value="{{ tenant }}">{{ tenant }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <!-- Selected Tenant Preview -->
+        <div class="selected-preview" id="selectedPreview" style="display: none;">
+          <div class="preview-header">
+            <i class="fas fa-check-circle"></i>
+            <h3>Selected Workspace</h3>
+          </div>
+          <div class="preview-content">
+            <div class="preview-tenant">
+              <div class="preview-icon">
+                <i class="fas fa-building"></i>
+              </div>
+              <div class="preview-details">
+                <h4 id="previewName"></h4>
+                <p>You'll have access to all forensic tools and data for this workspace</p>
+              </div>
+            </div>
+            <div class="preview-features">
+              <div class="feature">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics Dashboard</span>
+              </div>
+              <div class="feature">
+                <i class="fas fa-file-alt"></i>
+                <span>Log Management</span>
+              </div>
+              <div class="feature">
+                <i class="fas fa-shield-alt"></i>
+                <span>Security Monitoring</span>
+              </div>
+              <div class="feature">
+                <i class="fas fa-download"></i>
+                <span>Data Export</span>
+              </div>
+            </div>
           </div>
         </div>
-
-        <button type="submit" class="continue-button" id="continueBtn" disabled>
-          <i class="fas fa-arrow-right"></i> Continue
-        </button>
-      </form>
-
-      <div class="tenant-footer">
-        <div class="tenant-info">
-          <i class="fas fa-user"></i> Logged in as {{ session['user'] }}
+        
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="clearBtn" style="display: none;">
+            <i class="fas fa-times"></i>
+            Clear Selection
+          </button>
+          <button type="submit" class="btn btn-primary" id="continueBtn" disabled>
+            <span>Continue to Dashboard</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
         </div>
-        <a href="{{ url_for('logout') }}" class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i> Logout
+      </form>
+    </div>
+    
+    <!-- Quick Access Panel -->
+    <div class="quick-access">
+      <h3><i class="fas fa-clock"></i> Recent Activity</h3>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon">
+            <i class="fas fa-sign-in-alt"></i>
+          </div>
+          <div class="activity-details">
+            <p>Last login</p>
+            <span>2 hours ago</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="activity-details">
+            <p>Log analysis</p>
+            <span>Yesterday</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">
+            <i class="fas fa-download"></i>
+          </div>
+          <div class="activity-details">
+            <p>Data export</p>
+            <span>3 days ago</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="help-section">
+        <h4><i class="fas fa-question-circle"></i> Need Help?</h4>
+        <p>Contact support if you can't find your workspace or need access to additional tenants.</p>
+        <a href="#" class="help-link">
+          <i class="fas fa-headset"></i>
+          Contact Support
         </a>
       </div>
     </div>
   </div>
-
-  <!-- Optional: Font Awesome -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  
+  <script src="../static/js/select_tenant.js"></script>
 </body>
 </html>

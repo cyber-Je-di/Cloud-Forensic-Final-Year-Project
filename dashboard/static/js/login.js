@@ -1,12 +1,4 @@
-// Remove the import line. Chart is global after loading the CDN.
-// import { Chart } from "@/components/ui/chart";
-document.addEventListener("DOMContentLoaded", () => {
-  // …
-  const threatCtx = document.getElementById("threatChart").getContext("2d");
-  const threatChart = new Chart(threatCtx, { … }); // Chart is global
-  // …
-});
-
+import { Chart } from "@/components/ui/chart"
 // Toggle sidebar
 document.addEventListener("DOMContentLoaded", () => {
   const sidebarToggle = document.getElementById("sidebarToggle")

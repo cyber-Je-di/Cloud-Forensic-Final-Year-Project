@@ -1,117 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Panel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel | Forensic Dashboard</title>
+  <link rel="stylesheet" href="../static/css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Admin Dashboard</h1>
-            <span class="admin-badge">Admin</span>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fas fa-shield-alt"></i>
+          <span>Forensic</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <h3>Main</h3>
+          <ul>
+            <li class="active">
+              <a href="#">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fas fa-building"></i>
+                <span>Tenants</span>
+              </a>
+            </li>
+          </ul>
         </div>
 
+        <div class="nav-section">
+          <h3>Management</h3>
+          <ul>
+            <li>
+              <a href="#">
+                <i class="fas fa-user-shield"></i>
+                <span>Access Control</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fas fa-file-alt"></i>
+                <span>Logs</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="#" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span><a href="{{ url_for('logout') }}">Logout</a>
+          </span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <header class="top-nav">
+        <div class="nav-start">
+          <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="breadcrumb">
+            <a href="#">Home</a>
+            <span>/</span>
+            <span>Admin Dashboard</span>
+          </div>
+        </div>
+
+        <div class="nav-end">
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search..." />
+          </div>
+
+          <div class="nav-actions">
+            <button class="action-btn" title="Notifications">
+              <i class="fas fa-bell"></i>
+              <span class="badge">3</span>
+            </button>
+
+            <div class="user-menu">
+              <img src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff" alt="Admin"
+                class="avatar" />
+              <div class="user-info">
+                <span class="user-name">Admin</span>
+                <span class="user-role">Administrator</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1>Admin Dashboard</h1>
+            <p>Manage users, access requests, and tenant permissions</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline">
+              <i class="fas fa-download"></i>
+              Export Data
+            </button>
+            <button class="btn btn-primary">
+              <i class="fas fa-plus"></i>
+              Add User
+            </button>
+          </div>
+        </div>
+
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <div class="flash-message">
-                {% for message in messages %}
-                    {{ message }}
-                {% endfor %}
-            </div>
+        <div class="alert alert-success">
+          <div class="alert-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="alert-content">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+          <button class="alert-close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
         {% endif %}
         {% endwith %}
 
+        <!-- Dashboard Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon users">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-details">
+              <h3>Total Users</h3>
+              <p class="stat-value">{{ users|length }}</p>
+              <p class="stat-change increase">+2 <span>this week</span></p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon requests">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="stat-details">
+              <h3>Pending Requests</h3>
+              <p class="stat-value">{{ requests|length }}</p>
+              <p class="stat-change">No change <span>this week</span></p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon tenants">
+              <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-details">
+              <h3>Active Tenants</h3>
+              <p class="stat-value">{{ tenants|length }}</p>
+              <p class="stat-change increase">+1 <span>this month</span></p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon activity">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-details">
+              <h3>User Activity</h3>
+              <p class="stat-value">87%</p>
+              <p class="stat-change increase">+5% <span>this week</span></p>
+            </div>
+          </div>
+        </div>
+
         <!-- Pending Access Requests -->
         <div class="card">
-            <h2>Pending Access Requests</h2>
+          <div class="card-header">
+            <h2>
+              <i class="fas fa-user-clock"></i>
+              Pending Access Requests
+            </h2>
+            <div class="card-actions">
+              <button class="btn-icon" title="Refresh">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+              <button class="btn-icon" title="More options">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
             {% if requests %}
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Reason</th>
-                                <th>Assign Tenants</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for request in requests %}
-                            <tr>
-                                <td>{{ request.username }}</td>
-                                <td>{{ request.reason }}</td>
-                                <td>
-                                    <form method="POST" class="form-inline">
-                                        <input type="hidden" name="request_user" value="{{ request.username }}">
-                                        <select name="assign_tenants" class="select" multiple required>
-                                            {% for tenant in tenants %}
-                                                <option value="{{ tenant }}">{{ tenant }}</option>
-                                            {% endfor %}
-                                        </select>
-                                </td>
-                                <td class="button-group">
-                                        <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
-                                        <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>
+                      <div class="th-content">
+                        <span>Username</span>
+                        <i class="fas fa-sort"></i>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="th-content">
+                        <span>Reason</span>
+                        <i class="fas fa-sort"></i>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="th-content">
+                        <span>Assign Tenants</span>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="th-content">
+                        <span>Actions</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for request in requests %}
+                  <tr>
+                    <td>
+                      <div class="user-cell">
+                        <div class="user-avatar small">
+                          <img src="https://ui-avatars.com/api/?name={{ request.username }}&background=4f46e5&color=fff"
+                            alt="{{ request.username }}" />
+                        </div>
+                        <span>{{ request.username }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="reason-cell">
+                        <p>{{ request.reason }}</p>
+                        <button class="btn-text" title="View full reason">
+                          <i class="fas fa-eye"></i> View full
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <form method="POST" class="form-inline">
+                        <input type="hidden" name="request_user" value="{{ request.username }}" />
+                        <div class="select-container">
+                          <select name="assign_tenants" class="select" multiple required>
+                            {% for tenant in tenants %}
+                            <option value="{{ tenant }}">{{ tenant }}</option>
                             {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                          </select>
+                          <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        <button type="submit" name="action" value="approve" class="btn btn-success">
+                          <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button type="submit" name="action" value="delete" class="btn btn-danger">
+                          <i class="fas fa-times"></i> Reject
+                        </button>
+                      </div>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
             {% else %}
-                <p class="empty-state">No pending access requests.</p>
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="fas fa-user-clock"></i>
+              </div>
+              <h3>No Pending Requests</h3>
+              <p>There are currently no pending access requests to review.</p>
+            </div>
             {% endif %}
+          </div>
+
+          {% if requests %}
+          <div class="card-footer">
+            <div class="pagination">
+              <span class="pagination-info">
+                Showing 1-{{ requests|length }} of {{ requests|length }} items
+              </span>
+              <div class="pagination-controls">
+                <button class="btn-icon" disabled>
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-number active">1</span>
+                <button class="btn-icon" disabled>
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          {% endif %}
         </div>
 
         <!-- Registered Users -->
         <div class="card">
-            <h2>Registered Users</h2>
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Tenants</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for username, user in users.items() %}
-                        <tr>
-                            <td>{{ username }}</td>
-                            <td>
-                                {% if user.role == 'admin' %}
-                                    <span class="badge badge-warning">Admin</span>
-                                {% else %}
-                                    <span class="badge badge-success">Analyst</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if user.role == 'admin' %}
-                                    <em>All tenants</em>
-                                {% else %}
-                                    {{ user.authorized_tenants | join(', ') }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if user.role != 'admin' %}
-                                <form method="POST" class="inline-form">
-                                    <input type="hidden" name="delete_user" value="{{ username }}">
-                                    <button type="submit" name="action" value="remove_user" class="btn btn-danger btn-sm">Remove</button>
-                                </form>
-                                {% else %}
-                                    <span class="protected-user">Protected</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+          <div class="card-header">
+            <h2>
+              <i class="fas fa-users"></i>
+              Registered Users
+            </h2>
+            <div class="card-actions">
+              <div class="search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search users..." />
+              </div>
+              <button class="btn-icon" title="Filter">
+                <i class="fas fa-filter"></i>
+              </button>
+              <button class="btn-icon" title="More options">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
             </div>
+          </div>
+
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>
+                      <div class="th-content">
+                        <span>Username</span>
+                        <i class="fas fa-sort"></i>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="th-content">
+                        <span>Role</span>
+                        <i class="fas fa-sort"></i>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="th-content">
+                        <span>Tenants</span>
+                        <i class="fas fa-sort"></i>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="th-content">
+                        <span>Status</span>
+                        <i class="fas fa-sort"></i>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="th-content">
+                        <span>Actions</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for username, user in users.items() %}
+                  <tr>
+                    <td>
+                      <div class="user-cell">
+                        <div class="user-avatar small">
+                          <img src="https://ui-avatars.com/api/?name={{ username }}&background=4f46e5&color=fff"
+                            alt="{{ username }}" />
+                        </div>
+                        <span>{{ username }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {% if user.role == 'admin' %}
+                      <span class="badge admin">
+                        <i class="fas fa-user-shield"></i>
+                        Admin
+                      </span>
+                      {% else %}
+                      <span class="badge analyst">
+                        <i class="fas fa-user"></i>
+                        Analyst
+                      </span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="tenants-cell">
+                        {% if user.role == 'admin' %}
+                        <span class="all-access">All tenants</span>
+                        {% else %}
+                        <div class="tenant-list">
+                          {% for tenant in user.authorized_tenants %}
+                          <span class="tenant-badge">{{ tenant }}</span>
+                          {% endfor %}
+                        </div>
+                        {% endif %}
+                      </div>
+                    </td>
+                    <td>
+                      <span class="status-badge active">
+                        <i class="fas fa-circle"></i>
+                        Active
+                      </span>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Edit user">
+                          <i class="fas fa-edit"></i>
+                        </button>
+
+                        {% if user.role != 'admin' %}
+                        <form method="POST" class="inline-form">
+                          <input type="hidden" name="delete_user" value="{{ username }}" />
+                          <button type="submit" name="action" value="remove_user" class="btn-icon danger"
+                            title="Remove user">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </form>
+                        {% else %}
+                        <button class="btn-icon" disabled title="Protected user">
+                          <i class="fas fa-lock"></i>
+                        </button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="pagination">
+              <span class="pagination-info">
+                Showing 1-{{ users|length }} of {{ users|length }} users
+              </span>
+              <div class="pagination-controls">
+                <button class="btn-icon" disabled>
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-number active">1</span>
+                <button class="btn-icon" disabled>
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Toggle sidebar
+      const menuToggle = document.getElementById("menuToggle");
+      const appContainer = document.querySelector(".app-container");
+
+      menuToggle.addEventListener("click", function () {
+        appContainer.classList.toggle("sidebar-collapsed");
+      });
+
+      // Close alert
+      const alertClose = document.querySelector(".alert-close");
+      if (alertClose) {
+        alertClose.addEventListener("click", function () {
+          const alert = this.closest(".alert");
+          alert.style.opacity = "0";
+          setTimeout(() => {
+            alert.style.display = "none";
+          }, 300);
+        });
+      }
+
+      // Table row hover effect
+      const tableRows = document.querySelectorAll(".data-table tbody tr");
+      tableRows.forEach((row) => {
+        row.addEventListener("mouseenter", function () {
+          this.classList.add("hover");
+        });
+
+        row.addEventListener("mouseleave", function () {
+          this.classList.remove("hover");
+        });
+      });
+    });
+  </script>
 </body>
+
 </html>

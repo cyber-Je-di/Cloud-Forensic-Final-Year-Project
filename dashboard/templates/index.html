@@ -3,76 +3,224 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tenant Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="../static/css/dashboard.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
-  <div class="dashboard-container">
-
-    <header>
-      <h1>📊 Forensic Dashboard - {{ selected_tenant }}</h1>
-      <div class="controls">
-        <a href="{{ url_for('logout') }}" class="btn logout">Logout</a>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fas fa-shield-alt"></i>
+          <span>Forensic</span>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+        </button>
       </div>
-    </header>
-
-    <form method="POST" class="search-form" style="margin: 20px 0;">
-      <input type="text" name="query" placeholder="Search logs..." value="{{ query or '' }}">
-      <button type="submit">Search</button>
-    </form>
-
-    <section class="log-section">
-      <h2>Recent Log Events by Tenant</h2>
-      {% for tenant, logs in all_logs.items() %}
-      <h3>{{ tenant }}</h3>
-      {% if logs %}
-      <table class="alerts-table">
-        <thead>
-          <tr>
-            <th>File</th>
-            <th>Line #</th>
-            <th>Message</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for log in logs[:50] %}
-          <tr>
-            <td>{{ log.file }}</td>
-            <td>{{ log.line_num }}</td>
-            <td>{{ log.content }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <div class="empty-state">
-        <p>No logs found for {{ tenant }}.</p>
+      <nav class="sidebar-nav">
+        <ul>
+          <li class="active">
+            <a href="#"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-file-alt"></i><span>Logs</span></a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-exclamation-triangle"></i><span>Alerts</span></a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-cog"></i><span>Settings</span></a>
+          </li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
       </div>
-      {% endif %}
-      {% endfor %}
-    </section>
+    </aside>
 
-    <div class="footer-info">
-      <form method="POST" action="{{ url_for('export_logs') }}">
-        <input type="hidden" name="query" value="{{ query or '' }}">
-        <button type="submit" class="btn">Export Logs</button>
-      </form>
-    </div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="main-header">
+        <div class="header-left">
+          <h1>Dashboard <span class="tenant-badge">{{ selected_tenant }}</span></h1>
+        </div>
+        <div class="header-right">
+          <div class="search-container">
+            <form method="POST" class="search-form">
+              <input type="text" name="query" placeholder="Search logs..." value="{{ query or '' }}">
+              <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
 
+          </div>
+          <div class="user-menu">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" alt="User" class="avatar">
+            <span>Admin</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="dashboard-grid">
+        <!-- Stats Cards -->
+        <section class="stats-cards">
+          <div class="card stat-card">
+            <div class="stat-icon warning">
+              <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="stat-details">
+              <h3>Total Alerts</h3>
+              <p class="stat-value">1,254</p>
+              <p class="stat-change increase">+12% <span>from last week</span></p>
+            </div>
+          </div>
+
+          <div class="card stat-card">
+            <div class="stat-icon info">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-details">
+              <h3>Log Entries</h3>
+              <p class="stat-value">8,549</p>
+              <p class="stat-change increase">+5% <span>from last week</span></p>
+            </div>
+          </div>
+
+          <div class="card stat-card">
+            <div class="stat-icon success">
+              <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-details">
+              <h3>Active Tenants</h3>
+              <p class="stat-value">12</p>
+              <p class="stat-change">No change <span>from last week</span></p>
+            </div>
+          </div>
+
+          <div class="card stat-card">
+            <div class="stat-icon danger">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="stat-details">
+              <h3>Security Events</h3>
+              <p class="stat-value">42</p>
+              <p class="stat-change decrease">-8% <span>from last week</span></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Charts -->
+        <section class="card chart-card">
+          <div class="card-header">
+            <h2><i class="fas fa-chart-line"></i> Alert Statistics</h2>
+            <div class="card-actions">
+              <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="threatChart"></canvas>
+          </div>
+        </section>
+
+        <section class="card chart-card">
+          <div class="card-header">
+            <h2><i class="fas fa-chart-pie"></i> Logs Per Tenant</h2>
+            <div class="card-actions">
+              <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="logsPerTenantChart"></canvas>
+          </div>
+        </section>
+
+        <!-- Log Events Table -->
+        <section class="card table-card">
+          <div class="card-header">
+            <h2><i class="fas fa-file-alt"></i> Recent Log Events</h2>
+            <div class="card-actions">
+              <form method="POST" action="{{ url_for('export_logs') }}" class="inline-form">
+                <input type="hidden" name="query" value="{{ query or '' }}">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-download"></i> Export
+                </button>
+              </form>
+              <div class="dropdown">
+                <button class="btn btn-icon"><i class="fas fa-filter"></i></button>
+                <div class="dropdown-menu">
+                  <a href="#">All Tenants</a>
+                  <a href="#">Tenant A</a>
+                  <a href="#">Tenant B</a>
+                  <a href="#">Tenant C</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            {% for tenant, logs in all_logs.items() %}
+            <div class="tenant-logs">
+              <h3 class="tenant-name">{{ tenant }}</h3>
+              {% if logs %}
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>File</th>
+                      <th>Line #</th>
+                      <th>Message</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for log in logs[:10] %}
+                    <tr>
+                      <td><span class="file-path">{{ log.file }}</span></td>
+                      <td><span class="line-number">{{ log.line_num }}</span></td>
+                      <td><span class="log-message">{{ log.content }}</span></td>
+                      <td>
+                        <button class="btn-icon" title="View Details"><i class="fas fa-eye"></i></button>
+                        <button class="btn-icon" title="Copy"><i class="fas fa-copy"></i></button>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="table-footer">
+                <div class="table-info">Showing 1-10 of {{ logs|length }} logs</div>
+                <div class="pagination">
+                  <button class="btn-icon" disabled><i class="fas fa-chevron-left"></i></button>
+                  <span class="page-number active">1</span>
+                  <span class="page-number">2</span>
+                  <span class="page-number">3</span>
+                  <span class="page-dots">...</span>
+                  <span class="page-number">10</span>
+                  <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                </div>
+              </div>
+              {% else %}
+              <div class="empty-state">
+                <i class="fas fa-file-alt empty-icon"></i>
+                <p>No logs found for {{ tenant }}.</p>
+                <button class="btn btn-secondary">Configure Log Sources</button>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+    </main>
   </div>
 
-  <section>
-    <h2>📈 Alert Statistics</h2>
-    <canvas id="threatChart" width="600" height="300"></canvas>
-  </section>
-
-  <section>
-    <h2>📊 Logs Per Tenant</h2>
-    <canvas id="logsPerTenantChart" width="600" height="300"></canvas>
-  </section>
-
+  <script src="../static/js/script.js"></script>
 </body>
-<script src="../static/js/script.js"></script>
+
 </html>

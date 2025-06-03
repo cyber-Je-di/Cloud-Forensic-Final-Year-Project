@@ -2,106 +2,256 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Request Access</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/request_access.css') }}">
-  <script>
-    function showFilename(input) {
-      const label = document.getElementById('file-label');
-      if (input.files.length > 0) {
-        label.innerText = input.files[0].name;
-      } else {
-        label.innerText = "Click to upload proof document";
-      }
-    }
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Access | Forensic Dashboard</title>
+  <link rel="stylesheet" href="../static/css/request_access.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="request-container">
+  <!-- Background Elements -->
+  <div class="background">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+  </div>
+  
+  <div class="container">
     <div class="request-card">
-      <div class="request-header">
-        <div class="logo">
-          <i class="fas fa-user-shield"></i>
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">
+          <div class="logo">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <h1>Request Access</h1>
         </div>
-        <h1>Request Analyst Access</h1>
-        <p class="subtitle">Fill in your details to request access.</p>
+        <p class="subtitle">Join our forensic analysis platform by providing your credentials and verification documents.</p>
       </div>
-
+      
+      <!-- Progress Indicator -->
+      <div class="progress-indicator">
+        <div class="step active" data-step="1">
+          <div class="step-number">1</div>
+          <span>Personal Info</span>
+        </div>
+        <div class="step" data-step="2">
+          <div class="step-number">2</div>
+          <span>Verification</span>
+        </div>
+        <div class="step" data-step="3">
+          <div class="step-number">3</div>
+          <span>Documents</span>
+        </div>
+      </div>
+      
+      <!-- Alert Messages -->
       {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          <div class="alert-container">
-            {% for msg in messages %}
-              <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i> {{ msg }}
-                <button class="close-alert" onclick="this.parentElement.style.display='none'">&times;</button>
-              </div>
-            {% endfor %}
+      {% if messages %}
+      <div class="alert-container">
+        {% for msg in messages %}
+        <div class="alert success">
+          <div class="alert-icon">
+            <i class="fas fa-check-circle"></i>
           </div>
-        {% endif %}
-      {% endwith %}
-
-      <form method="POST" enctype="multipart/form-data">
-        <div class="form-section">
-          <h3><i class="fas fa-id-card"></i> Personal Info</h3>
-
-          <div class="form-group">
-            <label for="username"><i class="fas fa-user"></i> Username <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="text" id="username" name="username" placeholder="Preferred username" required>
-            </div>
+          <div class="alert-content">
+            <h4>Success!</h4>
+            <p>{{ msg }}</p>
           </div>
-
-          <div class="form-group">
-            <label for="nrc"><i class="fas fa-address-card"></i> NRC Number <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="text" id="nrc" name="nrc" placeholder="Your NRC number" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="license_id"><i class="fas fa-id-badge"></i> License ID <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="text" id="license_id" name="license_id" placeholder="Medical or analyst license ID" required>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3><i class="fas fa-comment-dots"></i> Reason for Access</h3>
-
-          <div class="form-group">
-            <label for="reason"><i class="fas fa-pen"></i> Justification <span class="required">*</span></label>
-            <div class="textarea-wrapper">
-              <textarea id="reason" name="reason" placeholder="Why do you need access?" required></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3><i class="fas fa-file-upload"></i> Proof Document</h3>
-          <div class="form-group file-upload-wrapper">
-            <label for="proof" class="file-upload-area" onclick="document.getElementById('proof').click()">
-              <div class="file-upload-icon"><i class="fas fa-upload"></i></div>
-              <div class="file-upload-text" id="file-label">Click to upload proof document</div>
-              <div class="file-upload-hint">Accepted formats: PDF, PNG, JPG</div>
-            </label>
-            <input type="file" id="proof" name="proof" accept=".pdf,.png,.jpg,.jpeg" required onchange="showFilename(this)">
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="submit-button">
-            <i class="fas fa-paper-plane"></i> Submit Request
+          <button class="alert-close" onclick="this.parentElement.style.display='none';">
+            <i class="fas fa-times"></i>
           </button>
         </div>
-
-        <div class="form-footer">
-          Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+      
+      <!-- Form -->
+      <form method="POST" enctype="multipart/form-data" class="request-form" id="requestForm">
+        <!-- Step 1: Personal Information -->
+        <div class="form-step active" data-step="1">
+          <div class="step-header">
+            <h2><i class="fas fa-user"></i> Personal Information</h2>
+            <p>Please provide your basic information to get started.</p>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="username">Username <span class="required">*</span></label>
+              <div class="input-container">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" name="username" placeholder="Choose a unique username" required>
+                <div class="input-feedback"></div>
+              </div>
+              <div class="help-text">
+                <i class="fas fa-info-circle"></i>
+                Username must be 3-20 characters long and contain only letters, numbers, and underscores.
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email Address <span class="required">*</span></label>
+              <div class="input-container">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                <div class="input-feedback"></div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="full_name">Full Name <span class="required">*</span></label>
+              <div class="input-container">
+                <i class="fas fa-id-card"></i>
+                <input type="text" id="full_name" name="full_name" placeholder="Your full legal name" required>
+                <div class="input-feedback"></div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <div class="input-container">
+                <i class="fas fa-phone"></i>
+                <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+                <div class="input-feedback"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step 2: Professional Verification -->
+        <div class="form-step" data-step="2">
+          <div class="step-header">
+            <h2><i class="fas fa-shield-alt"></i> Professional Verification</h2>
+            <p>Verify your professional credentials and qualifications.</p>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nrc">NRC Number <span class="required">*</span></label>
+              <div class="input-container">
+                <i class="fas fa-address-card"></i>
+                <input type="text" id="nrc" name="nrc" placeholder="Enter your NRC number" required>
+                <div class="input-feedback"></div>
+              </div>
+              <div class="help-text">
+                <i class="fas fa-info-circle"></i>
+                Your National Registration Card number for identity verification.
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="license_id">Professional License ID <span class="required">*</span></label>
+              <div class="input-container">
+                <i class="fas fa-id-badge"></i>
+                <input type="text" id="license_id" name="license_id" placeholder="Medical/Analyst license number" required>
+                <div class="input-feedback"></div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="organization">Organization/Institution</label>
+              <div class="input-container">
+                <i class="fas fa-building"></i>
+                <input type="text" id="organization" name="organization" placeholder="Your workplace or institution">
+                <div class="input-feedback"></div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="position">Job Title/Position</label>
+              <div class="input-container">
+                <i class="fas fa-briefcase"></i>
+                <input type="text" id="position" name="position" placeholder="Your current position">
+                <div class="input-feedback"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group full-width">
+            <label for="reason">Reason for Access Request <span class="required">*</span></label>
+            <div class="textarea-container">
+              <textarea id="reason" name="reason" placeholder="Please explain why you need access to the forensic dashboard and how you plan to use it..." required></textarea>
+              <div class="char-counter">
+                <span id="charCount">0</span>/500 characters
+              </div>
+            </div>
+            <div class="help-text">
+              <i class="fas fa-info-circle"></i>
+              Provide a detailed explanation of your need for access and intended use.
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step 3: Document Upload -->
+        <div class="form-step" data-step="3">
+          <div class="step-header">
+            <h2><i class="fas fa-file-upload"></i> Supporting Documents</h2>
+            <p>Upload verification documents to complete your request.</p>
+          </div>
+          
+          <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+              <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+              </div>
+              <div class="upload-text">
+                <h3>Drag & drop your files here</h3>
+                <p>or <span class="upload-link">browse files</span></p>
+              </div>
+              <div class="upload-formats">
+                <span class="format-tag">PDF</span>
+                <span class="format-tag">JPG</span>
+                <span class="format-tag">PNG</span>
+                <span class="format-tag">DOC</span>
+              </div>
+              <input type="file" id="proof" name="proof" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" required multiple>
+            </div>
+            
+            <div class="file-list" id="fileList"></div>
+            
+            <div class="upload-requirements">
+              <h4><i class="fas fa-list-check"></i> Required Documents:</h4>
+              <ul>
+                <li><i class="fas fa-check"></i> Professional license or certification</li>
+                <li><i class="fas fa-check"></i> Government-issued ID (NRC/Passport)</li>
+                <li><i class="fas fa-check"></i> Letter of employment or institutional affiliation</li>
+                <li><i class="fas fa-check"></i> Any additional credentials (optional)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Form Navigation -->
+        <div class="form-navigation">
+          <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">
+            <i class="fas fa-arrow-left"></i>
+            Previous
+          </button>
+          
+          <button type="button" class="btn btn-primary" id="nextBtn">
+            Next
+            <i class="fas fa-arrow-right"></i>
+          </button>
+          
+          <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+            <i class="fas fa-paper-plane"></i>
+            Submit Request
+          </button>
         </div>
       </form>
+      
+      <!-- Footer -->
+      <div class="form-footer">
+        <p>Already have an account? <a href="{{ url_for('login') }}">Sign in here</a></p>
+        <div class="security-note">
+          <i class="fas fa-lock"></i>
+          Your information is encrypted and secure
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- Optional: Font Awesome -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  
+  <script src="../static/js/request_access.js"></script>
 </body>
 </html>
