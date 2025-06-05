@@ -1,0 +1,45 @@
+[
+    {
+        "tenant_id": "tenant-a",
+        "alert_id": "a001",
+        "severity": "Critical",
+        "description": "System breach A"
+    },
+    {
+        "tenant_id": "tenant-a",
+        "alert_id": "a002",
+        "severity": "High",
+        "description": "Unauthorized access A"
+    },
+    {
+        "tenant_id": "tenant-a",
+        "alert_id": "a003",
+        "severity": "Medium",
+        "description": "Suspicious activity A"
+    },
+    {
+        "tenant_id": "tenant-b",
+        "alert_id": "b001",
+        "severity": "High",
+        "description": "Malware detected B"
+    },
+    {
+        "tenant_id": "tenant-b",
+        "alert_id": "b002",
+        "severity": "Low",
+        "description": "Policy violation B"
+    },
+    {
+        "tenant_id": "tenant-c",
+        "alert_id": "c001",
+        "severity": "Critical",
+        "description": "Data exfiltration C"
+    },
+    {
+        "tenant_id": "tenant-d",
+        "alert_id": "d001",
+        "severity": "Unknown",
+        "description": "Test D"
+    },
+    "not_an_alert_object"
+]
