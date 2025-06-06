@@ -77,7 +77,7 @@
             </div>
             <div class="stat-details">
               <h3>Total Alerts</h3>
-              <p class="stat-value">1,254</p>
+              <p class="stat-value">{{ total_alerts_dynamic if total_alerts_dynamic is not none else 'N/A' }}</p>
               <p class="stat-change increase">+12% <span>from last week</span></p>
             </div>
           </div>
@@ -88,7 +88,7 @@
             </div>
             <div class="stat-details">
               <h3>Log Entries</h3>
-              <p class="stat-value">8,549</p>
+              <p class="stat-value">{{ total_log_entries_dynamic if total_log_entries_dynamic is not none else 'N/A' }}</p>
               <p class="stat-change increase">+5% <span>from last week</span></p>
             </div>
           </div>
@@ -99,7 +99,7 @@
             </div>
             <div class="stat-details">
               <h3>Active Tenants</h3>
-              <p class="stat-value">12</p>
+              <p class="stat-value">{{ active_tenants_dynamic if active_tenants_dynamic is not none else 'N/A' }}</p>
               <p class="stat-change">No change <span>from last week</span></p>
             </div>
           </div>
@@ -110,7 +110,7 @@
             </div>
             <div class="stat-details">
               <h3>Security Events</h3>
-              <p class="stat-value">42</p>
+              <p class="stat-value">{{ security_events_dynamic if security_events_dynamic is not none else 'N/A' }}</p>
               <p class="stat-change decrease">-8% <span>from last week</span></p>
             </div>
           </div>

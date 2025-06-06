@@ -1,10 +1,14 @@
 import os
+import sys
 import json
 import re
 import csv
 import io
 import random
 import string
+
+# Add the project root directory (parent of 'dashboard') to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from flask import (
     Flask,
@@ -18,6 +22,7 @@ from flask import (
     Response
 )
 from functools import wraps
+from dashboard.alert import load_alerts_data
 
 app = Flask(__name__)
 app.secret_key = "supersecurekey"
@@ -32,7 +37,7 @@ UPLOAD_DIR = "uploads"
 
 def ensure_json_file(path, default):
     """
-    Make sure that `path` exists on disk. If not, create and write `default` into it.
+    Make sure that path exists on disk. If not, create and write default into it.
     """
     if not os.path.exists(path):
         with open(path, "w") as f:
@@ -212,27 +217,40 @@ def dashboard():
     query = request.form.get("query", "").strip()
 
     tenants = get_available_tenants(user)
+    active_tenants_count = len(tenants) # New: Active tenants count
     all_logs = {}
 
-    # If the analyst typed a “Tenant Name” dropdown, we could limit to that single tenant.
-    # But for now, show all authorized tenants (the template can filter further by selected_tenant)
-    for tenant in tenants:
-        if selected_tenant and tenant != selected_tenant:
-            continue
-        logs = search_logs(tenant, query)
-        all_logs[tenant] = logs
+    # Refined logic for populating all_logs for display:
+    display_tenants = []
+    if selected_tenant and selected_tenant != "All Tenants":
+        if selected_tenant in tenants: # Ensure selected tenant is authorized
+            display_tenants = [selected_tenant]
+    else: # "All Tenants" or no specific selection, so use all authorized tenants
+        display_tenants = tenants
 
-    # Count logs per tenant
-    logs_per_tenant = {t: len(all_logs.get(t, [])) for t in tenants}
+    for tenant_name in display_tenants:
+        logs = search_logs(tenant_name, query)
+        all_logs[tenant_name] = logs
+    
+    total_log_entries_count = sum(len(log_list) for log_list in all_logs.values()) # New: Total log entries
+
+    # For the "Logs Per Tenant" chart, show all authorized tenants' log counts
+    logs_per_tenant_for_chart = {t: len(search_logs(t, query)) for t in tenants}
 
     # Example threat stats (replace with load_alerts() or real data)
     # If you want to integrate load_alerts(), just do: stats, ts_data = load_alerts()
-    stats = {
+    # Keep existing chart_stats for now
+    chart_stats = {
         "Critical": 12,
         "High": 28,
         "Medium": 45,
         "Low": 67
     }
+
+    current_total_alerts, current_security_events = load_alerts_data(
+        selected_tenant=session.get("selected_tenant"), # Pass the raw value from session
+        authorized_tenants=tenants
+    )
 
     return render_template(
         "index.html",
@@ -240,9 +258,13 @@ def dashboard():
         role=session.get("role"),
         selected_tenant=selected_tenant or "All Tenants",
         query=query,
-        all_logs=all_logs,
-        logs_per_tenant=logs_per_tenant,
-        stats=stats,
+        all_logs=all_logs, # Contains logs for display (filtered by selection)
+        logs_per_tenant=logs_per_tenant_for_chart, # For the chart (all authorized tenants)
+        stats=chart_stats, # For the alert statistics chart
+        total_alerts_dynamic=current_total_alerts,         # New dynamic value for the card
+        security_events_dynamic=current_security_events,   # New dynamic value for the card
+        active_tenants_dynamic=active_tenants_count,        # New dynamic value
+        total_log_entries_dynamic=total_log_entries_count, # New dynamic value
         logout_url=url_for("logout")
     )
 
